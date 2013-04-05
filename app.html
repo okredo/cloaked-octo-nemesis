@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Apigee Training App</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+        <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+	<!-- Don't forget to include the SDK -->
+        <script src="usergrid.js"></script>
+	
+	<script type="text/javascript">
+
+            // Initializing the SDK
+            var client = new Usergrid.Client({
+                orgName:'orgname', // Your Usergrid org’s name (or apigee.com username for App Services)
+                appName:'appname', // You Usergrid app’s name
+            });
+
+            // Reading data
+            var books = new Usergrid.Collection({ "client":client, "type":"books" });
+/*
+            books.fetch(
+                function() { // Success
+                    while(books.hasNextEntity()) {
+                        var book = books.getNextEntity();
+                        alert(book.get("title")); // Output the title of the book
+                } }, function() { // Failure
+                    alert("read failed");
+                });
+*/
+
+	$(document).ready(function () {
+
+ 	    $('#post-message').bind('click', postMessage);
+
+            refreshFeed();
+
+            function refreshFeed() {
+              //a new Collection object that will be used to hold the full feed list
+              //var my_books = new Usergrid.Collection({ "client":orgname, "type":"books" });
+              //make sure messages are pulled back in order
+              books.fetch(
+                
+                // Success Callback
+                function(){
+                  var my_html = "";
+                  while(books.hasNextEntity()) {
+                    var current_book = books.getNextEntity();
+
+                    my_html += '<li>';
+                    my_html += '<h3>' + current_book.get('title') +'</h3>';
+                    my_html += '<p>'+ current_book.get('author') +'</p>';
+                    my_html += '</li>';
+                  }
+                  $("#messages-list").html(my_html);
+                  $('#messages-list').listview('refresh'); // refresh the list view to reapply styles
+                },
+
+                // Failure Callback
+                function(){
+                  $("#messages-list").html("<li>There was an error getting the messages!</li>");
+                }
+              );
+            }
+
+	    // Writing data
+	    
+	    function postMessage() { 
+		var title = $('#content-title').val();
+		var author = $('#content-author').val();
+            	options = { "type": "books", "title": title, "author": author };
+            	client.createEntity(options, function (err, response) {
+                	if (err) { 
+				alert("write failed");
+			} 
+                	else { 
+				refreshFeed();
+                    		history.back(); // or: window.location = "#page-messages-list";
+	        	} 
+	    	});
+	    }
+
+          });
+
+        </script>
+
+    </head>
+    <body>
+
+        <div data-role="page" data-theme="c" id="page-messages-list">
+          <div data-role="header" data-theme="b">
+            <h1>My Books</h1>
+            <a href="#page-new-message" data-rel="dialog" data-transition="slide" id="btn-compose" data-icon="plus" data-iconpos="right" data-inline="true" data-role="button" class="ui-btn-right">Compose</a>
+          </div>
+          <ul id="messages-list"  data-role="listview" data-inset="true" >
+          </ul>
+        </div>
+   
+	<div data-role="page" data-theme="b" id="page-new-message">
+          <div data-role="header" data-theme="b">
+            <h1>Add a New Book</h1>
+          </div>
+          <div data-role="content">
+            <form>
+              <label for="content">Title</label>
+              <textarea id="content-title" class="input-xlarge" rows="3" style="margin: 0px; width: 100%; height: 125px; "></textarea>
+              <label for="content">Author</label>
+              <textarea id="content-author" class="input-xlarge" rows="3" style="margin: 0px; width: 100%; height: 125px; "></textarea>
+            </form>
+            <a data-rel="back" id="btn-close-new-message" data-role="button" data-theme="c" data-inline="true">Cancel</a>
+            <button id="post-message" data-inline="true">Post</button>
+          </div>
+        </div>
+        
+    </body>
+</html>
