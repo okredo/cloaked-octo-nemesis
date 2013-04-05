@@ -11,27 +11,18 @@
 	
 	<script type="text/javascript">
 
-            // Initializing the SDK
-            var client = new Usergrid.Client({
-                orgName:'orgname', // Your Usergrid org’s name (or apigee.com username for App Services)
-                appName:'appname', // You Usergrid app’s name
-            });
+	// Initializing the SDK
+        var client = new Usergrid.Client({
+            	orgName:'orgname', // Your Usergrid org’s name (or apigee.com username for App Services)
+       		appName:'appname', // You Usergrid app’s name
+    	});
 
-            // Reading data
-            var books = new Usergrid.Collection({ "client":client, "type":"books" });
-/*
-            books.fetch(
-                function() { // Success
-                    while(books.hasNextEntity()) {
-                        var book = books.getNextEntity();
-                        alert(book.get("title")); // Output the title of the book
-                } }, function() { // Failure
-                    alert("read failed");
-                });
-*/
+        // Reading data
+        var books = new Usergrid.Collection({ "client":client, "type":"books" });
 
 	$(document).ready(function () {
-
+	    
+	    // Post button (in Compose dialog)
  	    $('#post-message').bind('click', postMessage);
 
             refreshFeed();
